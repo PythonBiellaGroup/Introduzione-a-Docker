@@ -1,0 +1,100 @@
+version: '3.6'
+
+volumes:
+  grafana_data:
+
+networks:
+  analytics_fe_net:
+    name: "analytics_front-end_network"
+    driver: overlay
+
+services:
+  zkui:
+    image: qnib/plain-zkui
+    depends_on:
+      - zoo1
+      - zoo2
+    networks:
+      - analytics_fe_net
+    ports:
+      - 10003:9090
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.hostname==pbg-002"
+    environment:
+      ZK_SERVER: "zoo-01:2181,zoo-02:2181,zoo-03:2181"
+      ZKUI_ADMIN: zoo_admin
+      ZKUI_ADMIN_PW: lewkrfjewlrkjwflkdjslsdnfkdjskewjrfhelkjqwdlqkwjdlkfjewlfkjewflkewjflewfkjewlfkj
+      ZKUI_USER: zoo_user
+      ZKUI_USER_PW: oiruo34iuwolfkwfkjlewfkjewlfkjwflkvndflbmnmnscklqeiwhjlwifjrel4oiuoiuoidf23423
+
+  kafka-mgr:
+    image: sheepkiller/kafka-manager
+    depends_on:
+      - kafka01
+      - kafka02
+      - kafka03
+    environment:
+      ZK_HOSTS: "zoo-01:2181,zoo-02:2181,zoo-03:2181"
+    networks:
+      - analytics_fe_net
+    ports:
+      - target: 9000
+        published: 10002
+        protocol: tcp
+        mode: ingress
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.hostname==pbg-002"
+
+  monitor_fe:
+    image: grafana/grafana:7.5.7
+    networks:
+      analytics_fe_net:
+    ports:
+      - 10000:3000
+    restart: unless-stopped
+    volumes:
+      - grafana_data:/var/lib/grafana
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.hostname==pbg-002"
+
+  admin_db:
+    image: adminer
+    restart: always
+    networks:
+      analytics_fe_net:
+    ports:
+      - 10001:8080
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.hostname==pbg-002"

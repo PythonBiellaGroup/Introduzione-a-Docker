@@ -1,0 +1,7 @@
+version: '3.6'
+
+volumes:
+
+networks:
+
+services:

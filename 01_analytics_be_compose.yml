@@ -8,9 +8,18 @@ volumes:
   kafka02_data:
   kafka03_data:
 
+  cache_data:
+
+  app_db_data:
+  app_db_logs:
+
+  da_db_data:
+
+  grafana_data:
+
 networks:
-  kafka_be_net:
-    name: "kafka_network"
+  analytics_be_net:
+    name: "analytics_back-end_network"
     driver: overlay
 
 services:
@@ -21,7 +30,7 @@ services:
       - zk_logs:/datalog
       - zk_data:/data
     networks:
-      - kafka_be_net
+      - analytics_be_net
     deploy:
       restart_policy:
         condition: on-failure
@@ -34,7 +43,7 @@ services:
           - "node.hostname==pbg-001"
     environment:
       ZOO_MY_ID: 1
-      ZOO_SERVERS: "server.1=zoo-01:2888:3888;2181 server.2=zoo-02:2888:3888;2181 "
+      ZOO_SERVERS: "server.1=zoo-01:2888:3888;2181 server.2=zoo-02:2888:3888;2181 server.3=zoo-03:2888:3888;2181 "
 
   zoo2:
     image: zookeeper
@@ -43,7 +52,7 @@ services:
       - zk_logs:/datalog
       - zk_data:/data
     networks:
-      - kafka_be_net
+      - analytics_be_net
     deploy:
       restart_policy:
         condition: on-failure
@@ -56,17 +65,16 @@ services:
           - "node.hostname==pbg-002"
     environment:
       ZOO_MY_ID: 2
-      ZOO_SERVERS: "server.1=zoo-01:2888:3888;2181 server.2=zoo-02:2888:3888;2181 "
+      ZOO_SERVERS: "server.1=zoo-01:2888:3888;2181 server.2=zoo-02:2888:3888;2181 server.3=zoo-03:2888:3888;2181"
 
-  zkui:
-    image: qnib/plain-zkui
-    depends_on:
-      - zoo1
-      - zoo2
+  zoo3:
+    image: zookeeper
+    hostname: zoo-03
+    volumes:
+      - zk_logs:/datalog
+      - zk_data:/data
     networks:
-      - kafka_be_net
-    ports:
-      - 11200:9090
+      - analytics_be_net
     deploy:
       restart_policy:
         condition: on-failure
@@ -78,25 +86,25 @@ services:
         constraints:
           - "node.hostname==pbg-002"
     environment:
-      ZK_SERVER: "zoo-01:2181,zoo-02:2181"
-      ZKUI_ADMIN: zoo_admin
-      ZKUI_ADMIN_PW: lewkrfjewlrkjwflkdjslsdnfkdjskewjrfhelkjqwdlqkwjdlkfjewlfkjewflkewjflewfkjewlfkj
-      ZKUI_USER: zoo_user
-      ZKUI_USER_PW: oiruo34iuwolfkwfkjlewfkjewlfkjwflkvndflbmnmnscklqeiwhjlwifjrel4oiuoiuoidf23423
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: "server.1=zoo-01:2888:3888;2181 server.2=zoo-02:2888:3888;2181 server.3=zoo-03:2888:3888;2181 "
 
   kafka01:
     image: 'wurstmeister/kafka:2.12-2.4.1'
     depends_on:
       - zoo1
       - zoo2
+      - zoo3
     hostname: kafka-01
     volumes:
       - kafka01_data:/kafka
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - kafka_be_net
-    ports:
-      - 11111:9092
+      - analytics_be_net
+
+    # ports:
+    #   - 11111:9092
+
     deploy:
       restart_policy:
         condition: any
@@ -110,8 +118,10 @@ services:
     environment:
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ADVERTISED_HOST_NAME: kafka-01
-      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:11111
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-01:9092,OUTSIDE://pbg-001:11111
+      #KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:11111
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      #KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-01:9092,OUTSIDE://pbg-001:11111
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-01:9092,OUTSIDE://kafka-01:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
 
@@ -126,14 +136,16 @@ services:
     depends_on:
       - zoo1
       - zoo2
+      - zoo3
     hostname: kafka-02
     volumes:
       - kafka02_data:/kafka
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - kafka_be_net
-    ports:
-      - 11112:9092
+      - analytics_be_net
+    # ports:
+    #   - 11112:9092
+
     deploy:
       restart_policy:
         condition: any
@@ -147,8 +159,10 @@ services:
     environment:
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ADVERTISED_HOST_NAME: kafka-02
-      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:11112
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-02:9092,OUTSIDE://pbg-002:11112
+      #KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:11112
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      #KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-02:9092,OUTSIDE://pbg-002:11112
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-02:9092,OUTSIDE://kafka-02:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
 
@@ -158,19 +172,21 @@ services:
       KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.rmi.port=1099"
       JMX_PORT: 1099
 
-  kafka-mgr:
-    image: sheepkiller/kafka-manager
+  kafka03:
+    image: 'wurstmeister/kafka:2.12-2.4.1'
     depends_on:
-      - kafka01
-      - kafka02
-
-    environment:
-      ZK_HOSTS: "zoo-01:2181,zoo-02:2181"
-
+      - zoo1
+      - zoo2
+      - zoo3
+    hostname: kafka-02
+    volumes:
+      - kafka02_data:/kafka
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - kafka_be_net
-    ports:
-      - 12001:9000
+      - analytics_be_net
+    # ports:
+    #   - 11112:9092
+
     deploy:
       restart_policy:
         condition: any
@@ -181,3 +197,43 @@ services:
       placement:
         constraints:
           - "node.hostname==pbg-001"
+    environment:
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ADVERTISED_HOST_NAME: kafka-03
+      #KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:11112
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      #KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-02:9092,OUTSIDE://pbg-002:11112
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-03:9092,OUTSIDE://kafka-03:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      KAFKA_ZOOKEEPER_CONNECT: zoo3:2181
+      KAFKA_LOG_DIRS: /kafka/logs
+      KAFKA_offsets_topic_replication_factor: 3
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.rmi.port=1099"
+      JMX_PORT: 1099
+
+  da_db:
+    image: mysql:8.0.31
+    restart: always
+    networks:
+      - analytics_be_net
+    environment:
+      MYSQL_DATABASE: 'da_db'
+      MYSQL_USER: 'da_app_user'
+      MYSQL_PASSWORD: 'K43tLklj2354Lk567kjlkwer3lkj546'
+      MYSQL_ROOT_PASSWORD: 'lkyjL2kreKOrglkkPUlj34ty3r09lERTkf'
+    #ports:
+    #  - '3306:3306'
+    volumes:
+      - da_db_data:/var/lib/mysql
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.hostname==pbg-002"
