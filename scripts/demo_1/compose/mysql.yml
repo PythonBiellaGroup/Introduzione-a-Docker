@@ -1,0 +1,27 @@
+version: "3.8"
+networks:
+  analytics_be_net:
+
+services:
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: lejwelfkjhFjkhwefkjwejwF
+    networks:
+      - analytics_be_net
+    ports:
+      - 21433:3306
+    volumes:
+      - mysql_data:/var/lib/mysql-files
+      - mysql_config:/etc/mysql
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - node.role==worker

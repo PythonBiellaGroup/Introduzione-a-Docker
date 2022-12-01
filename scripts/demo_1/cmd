@@ -1,0 +1,9 @@
+docker system info
+
+docker network ls
+docker volume ls
+docker container ls
+
+docker run -it ubuntu /bin/bash
+docker run -it centos /bin/bash -p 
+
