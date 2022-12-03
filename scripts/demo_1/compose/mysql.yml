@@ -1,17 +1,22 @@
 version: "3.8"
 networks:
   analytics_be_net:
-
+volumes:
+  mysql_data:
+  mysql_config:
 services:
   mysql:
-    image: mysql
+    image: mysql:8.0.31
     command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_ROOT_PASSWORD: lejwelfkjhFjkhwefkjwejwF
     networks:
       - analytics_be_net
-    ports:
-      - 21433:3306
+    # ports:
+    #   - 21000:3306
+    environment:
+      MYSQL_DATABASE: 'my_db'
+      MYSQL_USER: 'app_user'
+      MYSQL_PASSWORD: 'K43tLklj2354Lk567kjlkwer3lkj546'
+      MYSQL_ROOT_PASSWORD: lejwelfkjhFjkhwefkjwejwF
     volumes:
       - mysql_data:/var/lib/mysql-files
       - mysql_config:/etc/mysql
@@ -24,4 +29,4 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.role==worker
+          - "node.role==worker"
