@@ -1,0 +1,14 @@
+demo1:
+  adminer:
+    20000:8080
+  grafana:
+    20001:3000
+  mysql:
+    21000:3306
+demo2:
+  kafdrop: 
+  kafka: 
+  zoo:
+
+
+
