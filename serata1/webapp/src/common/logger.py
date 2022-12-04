@@ -7,7 +7,7 @@ import os
 
 from logging.handlers import RotatingFileHandler
 
-from data_connector.src.config import settings
+from webapp.src.common.config import settings
 
 # from logging.handlers import TimeRotatingFileHandler
 
