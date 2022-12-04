@@ -1,0 +1,36 @@
+{
+  "python.defaultInterpreterPath": "./.venv/bin/python",
+  "python.linting.flake8Enabled": true,
+  "python.linting.mypyEnabled": true,
+  "python.linting.enabled": true,
+  "python.testing.pytestArgs": ["test"],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "python.formatting.provider": "black",
+  "autoDocstring.customTemplatePath": "",
+  "[python]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4
+  },
+  "files.exclude": {
+    "**/__pycache__": true
+  },
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5442,
+      "driver": "PostgreSQL",
+      "name": "localdb",
+      "username": "pbg",
+      "database": "test",
+      "password": "pbg"
+    }
+  ],
+  "workbench.colorCustomizations": {
+    "editorRuler.foreground": "#ff4081",
+    "activityBar.background": "#0F3424",
+    "titleBar.activeBackground": "#144932",
+    "titleBar.activeForeground": "#F3FCF8"
+  }
+}
