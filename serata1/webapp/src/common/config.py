@@ -1,5 +1,4 @@
 import os
-import json
 from pathlib import Path
 from typing import Dict, Any
 from pydantic import BaseSettings, root_validator
@@ -214,7 +213,7 @@ class Settings(BaseSettings):
     }
 
     REDIS_CONNECTION: object = None
-    
+
     def _set_redis_settings(
         self,
         user: str = REDIS_USER,

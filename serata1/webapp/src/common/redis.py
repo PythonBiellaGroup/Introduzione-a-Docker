@@ -3,6 +3,8 @@ import asyncio
 from typing import Any
 import aioredis as ars
 from datetime import timedelta
+from webapp.src.common.config import settings
+from webapp.src.common.logger import logger
 
 
 async def redis_connect(
