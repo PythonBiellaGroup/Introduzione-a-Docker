@@ -1,0 +1,123 @@
+{ "annotations": { "list": [ { "builtIn": 1
+                             , "datasource": "-- Grafana --"
+                             , "enable": true
+                             , "hide": true
+                             , "iconColor": "rgba(0, 211, 255, 1)"
+                             , "name": "Annotations & Alerts"
+                             ,"type": "dashboard"
+                             }
+                           ]
+                 }
+, "editable": true
+, "gnetId": null
+, "graphTooltip": 0
+, "id": 1
+, "links": []
+, "panels": [ { "aliasColors": {}
+              , "bars": false
+              , "dashLength": 10
+              , "dashes": false
+              , "datasource": null
+              , "fieldConfig": { "defaults": {}
+                               , "overrides": []
+                               }
+              , "fill": 1
+              , "fillGradient": 0
+              , "gridPos": { "h": 9
+                           , "w": 12
+                           , "x": 0
+                           , "y": 0
+                           }
+              , "hiddenSeries": false
+              , "id": 2
+              , "legend": { "avg": false
+                          , "current": false
+                          , "max": false
+                          , "min": false
+                          , "show": true
+                          , "total": false
+                          , "values": false
+                          }
+              , "lines": true
+              , "linewidth": 1
+              , "nullPointMode": "null"
+              , "options": { "alertThreshold": true }
+              , "percentage": false
+              , "pluginVersion": "7.5.7"
+              , "pointradius": 2
+              , "points": false
+              , "renderer": "flot"
+              , "seriesOverrides": []
+              , "spaceLength": 10
+              , "stack": false
+              , "steppedLine": false
+              , "targets": [ { "format": "time_series"
+                             , "group": []
+                             , "metricColumn": "none"
+                             , "rawQuery": true
+                             , "rawSql": "SELECT Mese as time\r\n               , CodiceISO as metric\r\n               , MIN(Quotazionemedia) AS low\r\n               , AVG(Quotazionemedia) AS value\r\n               , MAX(Quotazionemedia) AS high\r\nFROM avg_rates GROUP BY time, metric"
+                             , "refId": "A"
+                             , "select": [ [ { "params": [ "value" ]
+                                             , "type": "column"
+                                             }
+                                           ]
+                                         ]
+                             , "timeColumn": "time"
+                             , "where": [ { "name": "$__timeFilter"
+                                          , "params": []
+                                          , "type": "macro"
+                                          }
+                                        ]
+                             }
+                           ]
+              , "thresholds": []
+              , "timeFrom": null
+              , "timeRegions": []
+              , "timeShift": null
+              , "title": "Panel Title"
+              , "tooltip": { "shared": true
+                           , "sort": 0
+                           , "value_type": "individual"
+                           }
+              , "transparent": true
+              , "type": "graph"
+              , "xaxis": { "buckets": null
+              , "mode": "time"
+              , "name": null
+              , "show": true
+              , "values": []
+              }
+            , "yaxes": [ { "format": "short"
+                         , "label": null
+                         , "logBase": 1
+                         , "max": null
+                         , "min": null
+                         , "show": true
+                         }
+                       , { "format": "short"
+                         , "label": null
+                         , "logBase": 1
+                         , "max": null
+                         , "min": null
+                         , "show": true
+                         }
+                       ]
+              , "yaxis": { "align": false
+                         , "alignLevel": null
+                         }
+              }
+            ]
+, "refresh": false
+, "schemaVersion": 27
+, "style": "dark"
+, "tags": []
+, "templating": { "list": [] }
+, "time": { "from": "1970-01-01T00:00:00.003Z"
+          , "to": "1970-01-01T00:00:00.004Z"
+          }
+, "timepicker": {}
+, "timezone": ""
+, "title": "Quotazioni"
+, "uid": "5dNW9fF4k"
+, "version": 2
+  }

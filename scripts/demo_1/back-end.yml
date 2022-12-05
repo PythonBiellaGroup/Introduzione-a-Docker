@@ -1,0 +1,89 @@
+version: '3.6'
+
+volumes:
+  grafana_data:
+  mysql_data:
+  mysql_config:
+
+networks:
+  analytics_be_net:
+    name: "analytics_front-end_network"
+    driver: overlay
+
+services:
+  bedb:
+    image: mysql:8.0.31
+    hostname: bedb
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - analytics_be_net
+    ports:
+      - 21000:3306
+    environment:
+      MYSQL_DATABASE: 'be_db'
+      MYSQL_USER: 'app_user'
+      MYSQL_PASSWORD: 'K43tLklj2354Lk567kjlkwer3lkj546'
+      MYSQL_ROOT_PASSWORD: lejwelfkjhFjkhwefkjwejwF
+    volumes:
+      - mysql_data:/var/lib/mysql-files
+      - mysql_config:/etc/mysql
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
+  dashboard:
+    image: grafana/grafana:7.5.7
+    networks:
+      analytics_be_net:
+    ports:
+      - 20001:3000
+    restart: unless-stopped
+    volumes:
+      - grafana_data:/var/lib/grafana
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
+  admin_db:
+    image: adminer
+    #image: phpmyadmin
+    hostname: admin_db
+    restart: always
+    networks:
+      analytics_be_net:
+    ports:
+      - 20000:8080
+    environment:
+      # PMA_ARBITRARY: 1
+      # PMA_HOST: be_db
+      # PMA_PORT: 3306
+      # PMA_USER: root
+      # PMA_PASSWORD: lejwelfkjhFjkhwefkjwejwF
+      
+      #MYSQL_ROOT_PASSWORD: lejwelfkjhFjkhwefkjwejwF
+      
+      ADMINER_DEFAULT_DB_HOST: bedb
+      ADMINER_DEFAULT_DB_NAME: be_db
+      ADMINER_DESIGN: galkaev
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
