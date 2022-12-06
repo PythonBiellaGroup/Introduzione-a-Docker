@@ -6,8 +6,11 @@ volumes:
   mysql_config:
 
 networks:
-  analytics_be_net:
-    name: "analytics_front-end_network"
+  be_net:
+    name: "back-end_network"
+    driver: overlay
+  fe_net:
+    name: "front-end_network"
     driver: overlay
 
 services:
@@ -16,7 +19,7 @@ services:
     hostname: bedb
     command: --default-authentication-plugin=mysql_native_password
     networks:
-      - analytics_be_net
+      - be_net
     ports:
       - 21000:3306
     environment:
@@ -40,9 +43,10 @@ services:
   dashboard:
     image: grafana/grafana:7.5.7
     networks:
-      analytics_be_net:
+      be_net:
+      fe_net:
     ports:
-      - 20001:3000
+      - 20000:3000
     restart: unless-stopped
     volumes:
       - grafana_data:/var/lib/grafana
@@ -58,22 +62,14 @@ services:
           - "node.role==manager"
   admin_db:
     image: adminer
-    #image: phpmyadmin
     hostname: admin_db
     restart: always
     networks:
-      analytics_be_net:
+      be_net:
+      fe_net:
     ports:
-      - 20000:8080
+      - 20001:8080
     environment:
-      # PMA_ARBITRARY: 1
-      # PMA_HOST: be_db
-      # PMA_PORT: 3306
-      # PMA_USER: root
-      # PMA_PASSWORD: lejwelfkjhFjkhwefkjwejwF
-      
-      #MYSQL_ROOT_PASSWORD: lejwelfkjhFjkhwefkjwejwF
-      
       ADMINER_DEFAULT_DB_HOST: bedb
       ADMINER_DEFAULT_DB_NAME: be_db
       ADMINER_DESIGN: galkaev

@@ -1,4 +1,5 @@
 USE be_db;
+START TRANSACTION;
 CREATE TABLE IF NOT EXISTS avg_rates ( id INT NOT NULL AUTO_INCREMENT
                                      , Paese VARCHAR(256) 
                                      , Valuta VARCHAR(256)
@@ -10,3 +11,4 @@ CREATE TABLE IF NOT EXISTS avg_rates ( id INT NOT NULL AUTO_INCREMENT
                                      , Mese INT 
                                      , PRIMARY KEY (id)
                                      );
+COMMIT;

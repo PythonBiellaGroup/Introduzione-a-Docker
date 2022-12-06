@@ -1,0 +1,78 @@
+version: '3.6'
+
+volumes:
+  fe_db_data:
+  fe_db_logs:
+
+networks:
+  fe_net:
+    name: "front-end_network"
+    driver: overlay
+
+services:
+  fedb:
+    image: 'mcr.microsoft.com/mssql/server:2022-latest'
+    hostname: fedb
+    networks:
+      - fe_net
+    ports:
+      - 21001:1433
+    environment:
+        - ACCEPT_EULA=Y
+        - MSSQL_SA_PASSWORD=rkli56734jlwkj45D6Fr23klrjl756a9kjreq
+        - MSSQL_PID=Developer
+        - MSSQL_DATA_DIR=/var/opt/sqlserver/sqldata
+        - MSSQL_LOG_DIR=/var/opt/sqlserver/sqllog
+    volumes:
+        - fe_db_data:/var/opt/sqlserver/sqldata
+        - fe_db_logs:/var/opt/sqlserver/sqllog
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
+
+  redis:
+    image: 'redis:latest'
+    ports:
+      - 21002:6379
+    environment:
+      ALLOW_EMPTY_PASSWORD: 'no'
+    command: redis-server --save 20 1 --loglevel warning --requirepass fljfiqdpWEPWEiqwdp03209rpolk
+    networks:
+      - fe_net
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
+
+  redis-ui:
+    image: 'rediscommander/redis-commander:latest'
+    ports:
+      - 20002:8081
+    environment:
+      REDIS_HOST: redis
+      REDIS_PASSWORD: fljfiqdpWEPWEiqwdp03209rpolk
+    networks:
+      - fe_net
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
