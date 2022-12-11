@@ -45,7 +45,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - "node.role==manager"
+          - "node.role==worker"
 
   redis:
     image: 'redis:latest'
@@ -65,7 +65,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - "node.role==manager"
+          - "node.role==worker"
 
   redis-ui:
     image: 'rediscommander/redis-commander:latest'
@@ -129,7 +129,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - "node.role==manager"
+          - "node.role==worker"
 
   zoo3:
     image: zookeeper
@@ -151,7 +151,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - "node.role==manager"
+          - "node.role==worker"
 
   zkui:
     image: qnib/plain-zkui
@@ -167,6 +167,16 @@ services:
       ZKUI_ZK_SERVER: "zoo1:2181,zoo2:2181,zoo3:2181"
       ZKUI_USER: zoo_user
       ZKUI_USER_PW: oiruo34iuwolfkwfkjlewfkjewlfkjwflkvndflbmnmnscklqeiwhjlwifjrel4oiuoiuoidf23423
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
 
   # Kafka 1
   kafka01:
@@ -224,7 +234,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - "node.role==manager"
+          - "node.role==worker"
 
   # Kafka 3
   kafka03:
@@ -253,7 +263,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - "node.role==manager"
+          - "node.role==worker"
 
   kafka-ui:
     image: "sheepkiller/kafka-manager"

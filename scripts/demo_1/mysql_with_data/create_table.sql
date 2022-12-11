@@ -12,3 +12,4 @@ CREATE TABLE IF NOT EXISTS avg_rates ( id INT NOT NULL AUTO_INCREMENT
                                      , PRIMARY KEY (id)
                                      );
 COMMIT;
+
