@@ -9,4 +9,4 @@ ADD load_data_into_db.sh .
 
 RUN chmod 700 /load_data_into_db.sh
 
-CMD ["mysqld"]
+CMD ["/load_data_into_db.sh"]

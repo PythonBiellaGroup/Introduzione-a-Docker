@@ -44,3 +44,5 @@ echo "USE be_db;" > "${base_file_path}/loadData.sql"
 $(generateLoadSql)
 echo "Load db data"
 mysql --password=lejwelfkjhFjkhwefkjwejwF be_db < "${base_file_path}/loadData.sql"
+
+mysqld
