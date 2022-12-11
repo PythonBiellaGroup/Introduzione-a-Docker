@@ -4,6 +4,7 @@ volumes:
   grafana_data:
   mysql_data:
   mysql_config:
+  registry_data:
 
 networks:
   be_net:
@@ -12,8 +13,29 @@ networks:
   fe_net:
     name: "front-end_network"
     driver: overlay
+  svc_net:
+    name: "service_network"
+    driver: overlay
 
 services:
+  registry:
+    image: registry
+    hostname: registry
+    networks:
+      - svc_net
+    volumes:
+      - registry_data:/var/lib/registry
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
+
   bedb:
     image: mysql:8.0.31
     hostname: bedb
@@ -40,6 +62,7 @@ services:
       placement:
         constraints:
           - "node.role==manager"
+
   dashboard:
     image: grafana/grafana:7.5.7
     networks:
@@ -60,6 +83,7 @@ services:
       placement:
         constraints:
           - "node.role==manager"
+
   admin_db:
     image: adminer
     hostname: admin_db
