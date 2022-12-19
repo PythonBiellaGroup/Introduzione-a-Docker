@@ -32,9 +32,6 @@ function generateLoadSql() {
   done
 }
 
-echo "Creating table"
-mysql --password=lejwelfkjhFjkhwefkjwejwF be_db < /create_table.sql
-
 echo "Get data from Banca D'Italia"
 mkdir "${base_file_path}/data"
 $(getDataFromBDI)
@@ -42,7 +39,11 @@ $(getDataFromBDI)
 echo "Generate db scripts"
 echo "USE be_db;" > "${base_file_path}/loadData.sql"
 $(generateLoadSql)
-echo "Load db data"
-mysql --password=lejwelfkjhFjkhwefkjwejwF be_db < "${base_file_path}/loadData.sql"
+
+# echo "Creating table"
+# mysql --password=lejwelfkjhFjkhwefkjwejwF be_db < /create_table.sql
+
+# echo "Load db data"
+# mysql --password=lejwelfkjhFjkhwefkjwejwF be_db < "${base_file_path}/loadData.sql"
 
 mysqld

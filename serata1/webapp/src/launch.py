@@ -7,7 +7,7 @@ import uuid
 def app():
 
     st.set_page_config(layout="centered")
-    st.image(image="webapp/static/login.png", width=150)
+    st.image(image="/app/static/login.png", width=150)
 
     placeholder = st.empty()
 
